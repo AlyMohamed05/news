@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:news/model/article.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news/blocs/news/news_bloc.dart';
 import 'package:news/theme.dart';
 import 'package:news/widget/widgets.dart';
 
@@ -14,27 +15,33 @@ class HomeScreen extends StatelessWidget {
         children: <Widget>[
           SizedBox(height: topSpacing),
           _homeHeader(),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 48,
-                crossAxisSpacing: 12,
-                mainAxisExtent: 207,
-              ),
-              itemBuilder: (context, index) {
-                final article = Article(
-                  author: 'Author $index',
-                  title: 'Title $index',
-                  description: 'Description $index',
-                  url: '',
-                  urlToImage: 'https://picsum.photos/id/$index/200/300',
-                  publishedAt: '2',
-                  content: 'Tiss is a fake content',
+          BlocBuilder<NewsBloc, NewsState>(
+            builder: (context, state) {
+              if (state is LoadingNews) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is NewsInitial) {
+                BlocProvider.of<NewsBloc>(context).add(LoadMoreNews());
+                return const Center();
+              } else {
+                final articlesState = state as NewsLoaded;
+                return Expanded(
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 48,
+                      crossAxisSpacing: 12,
+                      mainAxisExtent: 207,
+                    ),
+                    itemCount: articlesState.articles.length,
+                    itemBuilder: (context, index) {
+                      return ArticleTile(
+                          article: articlesState.articles[index]);
+                    },
+                  ),
                 );
-                return ArticleTile(article: article);
-              },
-            ),
+              }
+            },
           ),
         ],
       ),

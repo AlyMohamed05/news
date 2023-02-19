@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news/blocs/news/news_bloc.dart';
 import 'package:news/screen/screens.dart';
 
 void main() {
@@ -10,9 +12,12 @@ class NewsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'News',
-      home: HomeScreen(),
+    return BlocProvider(
+      create: (context) => NewsBloc(),
+      child: const MaterialApp(
+        title: 'News',
+        home: HomeScreen(),
+      ),
     );
   }
 }
